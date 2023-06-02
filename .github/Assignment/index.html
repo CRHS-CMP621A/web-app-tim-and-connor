@@ -2,24 +2,30 @@
 TIMEZONE -->
 
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link href="style.css" rel="stylesheet" />
-        <script src = 'script.js'></script>
-        <title>WEB APP - TIMEZONES</title>
-    </head>
+<html>
+<head>
+  <title>Timezone Converter</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+  <h1>Timezone Converter</h1>
+  <div class="container">
+    <div class="form-group">
+      <label for="myTimezone">My Timezone:</label>
+      <select id="myTimezone"></select>
+    </div>
+    <div class="form-group">
+      <label for="otherTimezone">Other Timezone:</label>
+      <select id="otherTimezone"></select>
+    </div>
+    <div class="form-group">
+      <button id="confirmButton">Confirm</button>
+    </div>
+  </div>
+  <div id="result"></div>
 
-    <body>
-      <h1>TIMEZONE CONVERTER</h1>
-      <div class = container>
-        <div class = form>
-          <label for = 'myTimezone'>My Timezone</label>
-          <select id = 'myTimezone'>
-            <option value = 
-          </select>
-        </div>
-      </div>
-    </body>
-
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.32/moment-timezone-with-data.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
