@@ -21,15 +21,16 @@ function populateTimezones() {
 // Function to convert time between time zones
 function convertTime() {
   let url = 'https://api.timezonedb.com/v2.1/convert-time-zone';
-  let apiKey = 'XWRY3TX1YVTA'; // Replace with your TimezoneDB API key
+  let apiKey = 'XWRY3TX1YVTA';
 
   let xhr = new XMLHttpRequest();
   xhr.open('GET', `${url}?from=${encodeURIComponent(myTimezone)}&to=${encodeURIComponent(otherTimezone)}&time=${Math.floor(Date.now() / 1000)}&key=${encodeURIComponent(apiKey)}`, true);
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
-        let response = JSON.parse(xhr.responseText);
-        let convertedTime = response.toTimestamp;
+        let response = xhr.responseXML;
+        let convertedTime = response.getElementsByTagName('toTimestamp')[0].textContent;
+        console.log(convertedTime)
 
         let options = {
           weekday: "long",
