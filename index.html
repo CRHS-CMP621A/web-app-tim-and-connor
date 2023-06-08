@@ -1,0 +1,33 @@
+<!--WEB APP 
+TIMEZONE -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Timezone Converter</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Timezone Converter</h1>
+    <div class="input-container">
+      <label for="source-timezone">Your Timezone:</label>
+      <div class="autocomplete">
+        <input id="source-timezone" type="text">
+        <ul id="autocomplete-container-source"></ul>
+      </div>
+    </div>
+    <div class="input-container">
+      <label for="target-timezone">Target Timezone:</label>
+      <div class="autocomplete">
+        <input id="target-timezone" type="text">
+        <ul id="autocomplete-container-target"></ul>
+      </div>
+    </div>
+    <button id="convert-button">Convert</button>
+    <div id="converted-time"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
