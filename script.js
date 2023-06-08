@@ -1,81 +1,99 @@
-let myTimezone;
-let otherTimezone;
-let convertedDateTime;
+document.addEventListener('DOMContentLoaded', () => {
+  const sourceTimezoneInput = document.getElementById('source-timezone');
+  const targetTimezoneInput = document.getElementById('target-timezone');
+  const convertButton = document.getElementById('convert-button');
+  const sourceAutocompleteContainer = document.getElementById('autocomplete-container-source');
+  const targetAutocompleteContainer = document.getElementById('autocomplete-container-target');
 
-// Function to populate the time zone select elements
-function populateTimezones() {
-  let selectElements = document.querySelectorAll("select");
-  let timeZones = moment.tz.names();
+  let timezones = [];
 
-  timeZones.forEach(function(timezone) {
-    let option = document.createElement("option");
-    option.value = timezone;
-    option.text = timezone;
-
-    selectElements.forEach(function(select) {
-      select.appendChild(option.cloneNode(true));
-    });
+  convertButton.addEventListener('click', handleTimezoneConversion);
+  sourceTimezoneInput.addEventListener('focus', () => {
+    handleAutocomplete(sourceTimezoneInput, sourceAutocompleteContainer);
   });
-}
+  targetTimezoneInput.addEventListener('focus', () => {
+    handleAutocomplete(targetTimezoneInput, targetAutocompleteContainer);
+  });
 
-// Function to convert time between time zones
-function convertTime() {
-  let url = 'https://api.timezonedb.com/v2.1/convert-time-zone';
-  let apiKey = 'XWRY3TX1YVTA';
+  sourceTimezoneInput.addEventListener('input', () => {
+    handleAutocomplete(sourceTimezoneInput, sourceAutocompleteContainer);
+  });
 
-  let xhr = new XMLHttpRequest();
-  xhr.open('GET', `${url}?from=${encodeURIComponent(myTimezone)}&to=${encodeURIComponent(otherTimezone)}&time=${Math.floor(Date.now() / 1000)}&key=${encodeURIComponent(apiKey)}`, true);
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        let response = xhr.responseXML;
-        let convertedTime = response.getElementsByTagName('toTimestamp')[0].textContent;
-        console.log(convertedTime)
+  targetTimezoneInput.addEventListener('input', () => {
+    handleAutocomplete(targetTimezoneInput, targetAutocompleteContainer);
+  });
 
-        let options = {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-          second: "numeric",
-          timeZone: otherTimezone
-        };
+  function handleTimezoneConversion() {
+    const sourceTimezone = sourceTimezoneInput.value;
+    const targetTimezone = targetTimezoneInput.value;
 
-        convertedDateTime = new Date(convertedTime * 1000).toLocaleString(undefined, options);
-        updateResult();
-      } else {
-        let errorMessage = "Error: " + xhr.status + " " + xhr.statusText;
-        displayError(errorMessage);
-      }
+    if (!sourceTimezone || !targetTimezone) {
+      alert('Please select source and target timezones.');
+      return;
     }
-  };
 
-  xhr.send();
-}
+    const apiKey = 'XWRY3TX1YVTA';
 
-// Function to update the conversion result
-function updateResult() {
-  let resultElement = document.getElementById("result");
-  resultElement.textContent = "Converted Time: " + convertedDateTime;
-}
+    const apiUrl = `https://api.timezonedb.com/v2.1/convert-time-zone?key=${apiKey}&format=json&from=${sourceTimezone}&to=${targetTimezone}&time=${Date.now() / 1000}`;
 
-// Function to display error message
-function displayError(errorMessage) {
-  let resultElement = document.getElementById("result");
-  resultElement.textContent = errorMessage;
-}
+    fetch(apiUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('API request failed');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.status === 'OK') {
+          const convertedTime = new Date(data.toTimestamp * 1000).toLocaleTimeString('en-US');
+          displayConvertedTime(convertedTime);
+        } else {
+          throw new Error(data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        displayConvertedTime('Unknown');
+      });
+  }
 
-// Event listener for the confirm button
-document.getElementById("confirmButton").addEventListener("click", function() {
-  myTimezone = document.getElementById("myTimezone").value;
-  otherTimezone = document.getElementById("otherTimezone").value;
+  function displayConvertedTime(convertedTime) {
+    const convertedTimeElement = document.getElementById('converted-time');
+    convertedTimeElement.textContent = `Converted Time: ${convertedTime}`;
+  }
 
-  convertTime();
-});
+  function handleAutocomplete(inputElement, autocompleteContainer) {
+    const inputText = inputElement.value.trim().toLowerCase();
+    const matchedOptions = timezones.filter(option => option.toLowerCase().startsWith(inputText));
+    displayAutocompleteOptions(matchedOptions, autocompleteContainer, inputElement);
+  }
 
-// Call the populateTimezones function on page load
-document.addEventListener("DOMContentLoaded", function() {
-  populateTimezones();
+  function displayAutocompleteOptions(options, autocompleteContainer, inputElement) {
+    autocompleteContainer.innerHTML = '';
+
+    if (options.length === 0) {
+      autocompleteContainer.style.display = 'none';
+      return;
+    }
+
+    options.forEach(option => {
+      const optionElement = document.createElement('div');
+      optionElement.textContent = option;
+      optionElement.classList.add('autocomplete-option');
+      optionElement.addEventListener('click', () => {
+        inputElement.value = option;
+        autocompleteContainer.style.display = 'none';
+      });
+      autocompleteContainer.appendChild(optionElement);
+    });
+
+    autocompleteContainer.style.display = 'block';
+  }
+
+  fetch('https://worldtimeapi.org/api/timezone')
+    .then(response => response.json())
+    .then(data => {
+      timezones = data.map(zone => zone.split('/').pop());
+    })
+    .catch(error => console.error('Error:', error));
 });
